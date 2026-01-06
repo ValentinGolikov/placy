@@ -1,6 +1,7 @@
 package com.example.placy
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -14,6 +15,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.github.ismoy.imagepickerkmp.domain.config.ImagePickerConfig
 import io.github.ismoy.imagepickerkmp.domain.extensions.loadBytes
@@ -27,6 +30,7 @@ fun CameraView(navController: NavController, latitude: Double, longitude: Double
     var cameraState by remember { mutableStateOf<CameraState>(CameraState.Loading) }
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val nextcloudClient = remember { NextcloudClient(NetworkModule.httpClient) }
     val api = remember { ApiService(NetworkModule.httpClient) }

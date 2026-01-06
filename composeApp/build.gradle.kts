@@ -29,6 +29,10 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.navigation.compose)
+            implementation(libs.androidx.material.icons.extended)
+            implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+            implementation("io.coil-kt:coil-svg:2.5.0")
         }
         commonMain.dependencies {
             implementation(compose.runtime)

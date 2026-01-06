@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -54,6 +55,8 @@ kotlin {
             implementation(libs.postgresql)
             implementation("io.coil-kt.coil3:coil-compose:3.3.0")
             implementation("io.coil-kt.coil3:coil-network-ktor3:3.3.0")
+            implementation("io.ktor:ktor-client-content-negotiation:3.3.0")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.0")
             implementation("io.github.ismoy:imagepickerkmp:1.0.28-beta3")
         }
         commonTest.dependencies {
@@ -82,10 +85,6 @@ android {
             "SERVER_URL",
             "USERNAME",
             "PASSWORD",
-            "DATABASE_URL",
-            "DATABASE_PASSWORD",
-            "DATABASE_DRIVER",
-            "DATABASE_USERNAME"
         )
 
         for(element in list) {

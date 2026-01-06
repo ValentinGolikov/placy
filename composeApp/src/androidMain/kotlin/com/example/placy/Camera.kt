@@ -23,20 +23,17 @@ import io.github.ismoy.imagepickerkmp.domain.extensions.loadBytes
 import io.github.ismoy.imagepickerkmp.presentation.ui.components.ImagePickerLauncher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @Composable
-fun CameraView(navController: NavController) {
+fun CameraView(navController: NavController, latitude: Double, longitude: Double) {
     var cameraState by remember { mutableStateOf<CameraState>(CameraState.Loading) }
+
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val nextcloudClient = remember {
-        NextcloudClient(
-            baseUrl = BuildConfig.SERVER_URL,
-            pass = BuildConfig.PASSWORD,
-            user = BuildConfig.USERNAME
-        )
-    }
+    val nextcloudClient = remember { NextcloudClient(NetworkModule.httpClient) }
+    val api = remember { ApiService(NetworkModule.httpClient) }
 
     LaunchedEffect(Unit) {
         // Небольшая задержка перед открытием камеры
@@ -74,18 +71,21 @@ fun CameraView(navController: NavController) {
                         onPhotoCaptured = { result ->
                             cameraState = CameraState.Uploading
                             scope.launch {
-                                try {
-                                    val bytes = result.loadBytes()
-                                    val success = nextcloudClient.uploadImage(bytes)
-                                    if (success) {
-                                        // Успешно загружено
-                                        navController.popBackStack()
-                                    } else {
-                                        // Ошибка загрузки
-                                        cameraState = CameraState.Error("Ошибка загрузки")
-                                    }
-                                } catch (e: Exception) {
-                                    cameraState = CameraState.Error("Ошибка: ${e.message}")
+                                val photoId = UUID.randomUUID().toString()
+
+                                val bytes = result.loadBytes()
+
+                                val isUploaded = nextcloudClient.uploadImage(bytes, photoId)
+
+                                if (isUploaded) {
+                                    api.saveMark(
+                                        GeoMark(
+                                            photoUUID = photoId,
+                                            latitude = latitude,
+                                            longitude = longitude
+                                        )
+                                    )
+                                    navController.popBackStack()
                                 }
                             }
                         },

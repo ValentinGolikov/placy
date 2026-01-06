@@ -41,7 +41,7 @@ fun MainNavigation() {
                 .padding(innerPadding)
         ) {
             composable(Screen.Map.route) {
-                MapScreen()
+                TempMapScreen()
             }
 
             composable(Screen.Camera.route) {

@@ -1,13 +1,22 @@
 package com.example.placy
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.github.ismoy.imagepickerkmp.domain.config.ImagePickerConfig
 import io.github.ismoy.imagepickerkmp.domain.extensions.loadBytes
@@ -47,34 +56,48 @@ fun CameraView(navController: NavController) {
         }
 
         CameraState.Ready -> {
-            ImagePickerLauncher(
-                config = ImagePickerConfig(
-                    onPhotoCaptured = { result ->
-                        cameraState = CameraState.Uploading
-                        scope.launch {
-                            try {
-                                val bytes = result.loadBytes()
-                                val success = nextcloudClient.uploadImage(bytes)
-                                if (success) {
-                                    // Успешно загружено
-                                    navController.popBackStack()
-                                } else {
-                                    // Ошибка загрузки
-                                    cameraState = CameraState.Error("Ошибка загрузки")
+            Box (
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .padding(
+                        top = WindowInsets.statusBars
+                            .asPaddingValues()
+                            .calculateTopPadding(),
+                        bottom = WindowInsets.navigationBars
+                        .asPaddingValues()
+                        .calculateBottomPadding()
+                    )
+            ) {
+                ImagePickerLauncher(
+                    config = ImagePickerConfig(
+                        onPhotoCaptured = { result ->
+                            cameraState = CameraState.Uploading
+                            scope.launch {
+                                try {
+                                    val bytes = result.loadBytes()
+                                    val success = nextcloudClient.uploadImage(bytes)
+                                    if (success) {
+                                        // Успешно загружено
+                                        navController.popBackStack()
+                                    } else {
+                                        // Ошибка загрузки
+                                        cameraState = CameraState.Error("Ошибка загрузки")
+                                    }
+                                } catch (e: Exception) {
+                                    cameraState = CameraState.Error("Ошибка: ${e.message}")
                                 }
-                            } catch (e: Exception) {
-                                cameraState = CameraState.Error("Ошибка: ${e.message}")
                             }
+                        },
+                        onError = { error ->
+                            navController.popBackStack() // Возвращаемся при ошибке камеры
+                        },
+                        onDismiss = {
+                            navController.popBackStack() // Возвращаемся при отмене
                         }
-                    },
-                    onError = { error ->
-                        navController.popBackStack() // Возвращаемся при ошибке камеры
-                    },
-                    onDismiss = {
-                        navController.popBackStack() // Возвращаемся при отмене
-                    }
+                    )
                 )
-            )
+            }
 
             // Показываем индикатор загрузки во время загрузки фото
             if (cameraState == CameraState.Uploading) {

@@ -1,0 +1,5 @@
+services:
+  placy-test:
+    build: .
+    volumes:
+      - ./composeApp/build:/app/composeApp/build
